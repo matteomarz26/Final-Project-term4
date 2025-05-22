@@ -1,0 +1,73 @@
+let player;
+let obstacles = [];
+let gameOver = false;
+
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+  player = {
+    x: width / 2,
+    y: height / 2,
+    radius: 20,
+    color: '#00ffcc'
+  };
+}
+
+function draw() {
+  background(20);
+
+  if (gameOver) {
+    textSize(48);
+    fill('red');
+    textAlign(CENTER, CENTER);
+    text('GAME OVER', width / 2, height / 2);
+    noLoop(); // Stop the game
+    return;
+  }
+
+  // Move player toward mouse
+  player.x += (mouseX - player.x) * 0.1;
+  player.y += (mouseY - player.y) * 0.1;
+
+  // Draw player
+  fill(player.color);
+  noStroke();
+  ellipse(player.x, player.y, player.radius * 2);
+
+  // Handle obstacles
+  handleObstacles();
+
+  // Collision detection
+  for (let obs of obstacles) {
+    let d = dist(player.x, player.y, obs.x, obs.y);
+    if (d < player.radius + obs.radius) {
+      gameOver = true;
+    }
+  }
+}
+
+function handleObstacles() {
+  // Add new obstacle occasionally
+  if (frameCount % 30 === 0) {
+    obstacles.push({
+      x: random(width),
+      y: -20,
+      radius: random(15, 30),
+      speed: random(4, 8)
+    });
+  }
+
+  // Update and draw
+  for (let obs of obstacles) {
+    obs.y += obs.speed;
+    fill('#ff4444');
+    ellipse(obs.x, obs.y, obs.radius * 2);
+  }
+
+  // Remove off-screen obstacles
+  obstacles = obstacles.filter(o => o.y < height + o.radius);
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
+
